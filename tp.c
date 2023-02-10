@@ -61,7 +61,7 @@ int main(void){
         else
             matriz_avaliacoes[lin][col] += s[strlen(s)-1] - '0';
 
-        // contabiliza total de voos da cia
+        // contabiliza total de avaliações
         matriz_total[lin][col]++;
 
     }
@@ -79,7 +79,7 @@ int main(void){
 */
     conta_aval = 0;
 
-    // contbiliza total de cias
+    // contabiliza total de avaliações
     for(i=0; i<36; i++)
         for(j=0; j<36; j++)
             if(matriz_avaliacoes[i][j] != -1)
