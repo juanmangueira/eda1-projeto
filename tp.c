@@ -61,7 +61,7 @@ int main(void){
         else
             matriz_avaliacoes[lin][col] += s[strlen(s)-1] - '0';
 
-        // contabiliza total de voos da cia
+        // contabiliza total de avaliações
         matriz_total[lin][col]++;
 
     }
@@ -79,7 +79,7 @@ int main(void){
 */
     conta_aval = 0;
 
-    // contbiliza total de cias
+    // contabiliza total de avaliações
     for(i=0; i<36; i++)
         for(j=0; j<36; j++)
             if(matriz_avaliacoes[i][j] != -1)
@@ -151,16 +151,16 @@ int main(void){
 
 void selectionsort(review v[], int tam){
     int i, j, indice;
-    double min;
+    double max;
     review tmp;
 
     for(i = 0; i<tam-1; ++i){
 
-        min = v[i].media; indice = i;
+        max = v[i].media; indice = i;
 
         for(j=i+1; j<tam; ++j){
-            if(v[j].media < min){
-                min = v[j].media;
+            if(v[j].media > max){
+                max = v[j].media;
                 indice = j;
             }
         }
