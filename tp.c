@@ -4,181 +4,126 @@
 #include<ctype.h>
 #include<time.h>
 
+#define QTD_MESES_ANO 12
+#define TAMANHO_MAX_LINHA 25
 
-struct av{
-    char data[8];
-    int avaliacao;
+struct av {
+    char ano[5];
+    char mes[3];
+    int avaliacaoSoma;
     int total;
     double media;
 };
 
-typedef struct av review;
+typedef struct av avaliacaoMensal;
 
-void selectionsort(review v[], int tam);
-int hash(char ch);
-char hash_inverso(int n);
+void selectionSortDesc(avaliacaoMensal avaliacoes[], int tam);
 
-int main(void){
+void escreverArquivoSaida(const avaliacaoMensal *reviews, int tam);
 
+void imprimeDadosAvaliacoes(const avaliacaoMensal *reviews, int tam);
+
+int main(void) {
     clock_t inicioT = clock();
 
-    FILE *f;
-    f = fopen("reviews.csv", "r");
-    char s[100];
-    int i, j, k, l;
-    char m[10];
-    int lin, col, conta_aval;
-    review *reviews;
-    char ch1, ch2;
+    FILE *arquivoCSV = fopen("reviews.csv", "r");
+    char linha[TAMANHO_MAX_LINHA];
+    avaliacaoMensal *reviews;
 
-    int matriz_avaliacoes[36][36];
-    int matriz_total[36][36];
+    // aloca espaco para 12 revisoes, uma para cada mes do ano
+    reviews = (avaliacaoMensal *) malloc(sizeof(avaliacaoMensal) * QTD_MESES_ANO);
 
-    for(i=0; i<36; i++)
-        for(j=0; j<36; j++){
-            matriz_avaliacoes[i][j] = -1;
-            matriz_total[i][j] = 0;
-        }
+    // descarta o cabecalho do CSV
+    fgets(linha, TAMANHO_MAX_LINHA, arquivoCSV);
+    while (fgets(linha, TAMANHO_MAX_LINHA, arquivoCSV) != NULL){
+        // recupera substring até o caracter ','
+        char *strTime = strtok(linha, ",");
 
+        // recupera substring até o caracter ',' or fim de linha
+        char *strRating = strtok(NULL, ",");
+        int rating = atoi(strRating);
 
-    fscanf(f, "%s", s);
-    while(fscanf(f, "%s", s) != EOF){
-        // encontra a posicao da primeira virgula da linha
-        for(i=0; s[i] != ','; ++i);
+        // recupera substring do inicio até o caracter '-'
+        char *strAno = strtok(strTime, "-");
+        char *strMes = strtok(NULL, "-");
+        int mes = atoi(strMes);
 
-        lin = hash(s[i-7]);
-        col = hash(s[i-6]);
+        // mes comeca do 1(janeiro) mas o index do array comeca do 0
+        int index = mes - 1;
 
+        strcpy(reviews[index].ano, strAno);
+        strcpy(reviews[index].mes, strMes);
 
-        if(matriz_avaliacoes[lin][col] == -1){
-
-            if( s[i-6] == '1' || 
-                s[i-6] == '2' || 
-                s[i-6] == '3' || 
-                s[i-6] == '4' ||
-                s[i-6] == '5' || 
-                s[i-6] == '6' || 
-                s[i-6] == '7' || 
-                s[i-6] == '8' ||
-                s[i-6] == '9' || 
-                (s[i-7] == '1' && s[i-6] == '0') || 
-                (s[i-7] == '1' && s[i-6] == '1') || 
-                (s[i-7] == '1' && s[i-6] == '2')){
-                matriz_avaliacoes[lin][col] = s[strlen(s)-1];
-            }
-        }
-        else
-            matriz_avaliacoes[lin][col] += s[strlen(s)-1] - '0';
-
-        // contabiliza total avaliações
-        matriz_total[lin][col]++;
-
+        reviews[index].avaliacaoSoma += rating;
+        reviews[index].total++;
+        reviews[index].media = (double) reviews[index].avaliacaoSoma / reviews[index].total;
     }
-    fclose(f);
+    fclose(arquivoCSV);
 
-    conta_aval = 0;
+    printf("Lista ordenada por mês(crescente): \n");
+    imprimeDadosAvaliacoes(reviews, QTD_MESES_ANO);
 
-    // contbiliza avaliações a cada mes
-    for(i=0; i<36; i++)
-        for(j=0; j<36; j++)
-            if(matriz_avaliacoes[i][j] != -1)
-                conta_aval++;
+    clock_t inicioOrdenacao = clock();
+    // ordena as avaliacoes em ordem decrescente
+    selectionSortDesc(reviews, QTD_MESES_ANO);
+    clock_t fimOrdenacao = clock();
 
-    reviews = (review*) malloc(sizeof(review) * conta_aval);
+    putchar('\n');
 
-    k = 0;
+    printf("Lista ordenada por media(decrescente): \n");
+    imprimeDadosAvaliacoes(reviews, QTD_MESES_ANO);
 
-    clock_t inicioM = clock();
-
-    for(i=0; i<36; i++)
-        for(j=0; j<36; j++){
-            if(matriz_avaliacoes[i][j] != -1){
-                reviews[k].avaliacao = matriz_avaliacoes[i][j] - 48;
-                reviews[k].total = matriz_total[i][j];
-                reviews[k].media = (double)reviews[k].avaliacao/reviews[k].total;
-
-                ch1 = hash_inverso(i);
-                ch2 = hash_inverso(j);
-
-                reviews[k].data[0] = ch1;
-                reviews[k].data[1] = ch2;
-                reviews[k].data[2] = '\0';
-
-                k++;
-            }
-        }
-
-    clock_t fimM = clock();
-
-        for(i=0; i< conta_aval; i++){
-            printf("%s, avaliacoes: %d, total: %d, media: %lf\n", reviews[i].data,
-                                                                reviews[i].avaliacao,
-                                                                reviews[i].total,
-                                                                reviews[i].media);
-        }
-
-        clock_t inicioSS = clock();
-
-        selectionsort(reviews, conta_aval);
-
-        clock_t fimSS = clock();
-
-        putchar('\n');
-        for(i=0; i< conta_aval; i++){
-            printf("%s_2022, avaliacoes: %d, total: %d, media: %lf\n", reviews[i].data,
-                                                                reviews[i].avaliacao,
-                                                                reviews[i].total,
-                                                                reviews[i].media);
-        }
-
-        f = fopen("saida.csv", "w");
-        for(i=0; i< conta_aval; i++)
-            fprintf(f, "%s,%lf\n", reviews[i].data, reviews[i].media);
-        fclose(f);
+    escreverArquivoSaida(reviews, QTD_MESES_ANO);
 
     clock_t fimT = clock();
 
-    double tempoT = (double)(fimT - inicioT) / CLOCKS_PER_SEC;
-    double tempoM = (double)(fimM - inicioM) / CLOCKS_PER_SEC;
-    double tempoSS = (double)(fimSS - inicioSS) / CLOCKS_PER_SEC;
+    double tempoT = (double) (fimT - inicioT) / CLOCKS_PER_SEC;
+    double tempoSS = (double) (fimOrdenacao - inicioOrdenacao) / CLOCKS_PER_SEC;
 
-    printf("\nTempo de execução: %fs\nTempo de média: %fs\nTempo de sort: %fs\n",tempoT, tempoM, tempoSS);
+    printf("\nTempo de execução: %fs\nTempo de sort: %fs\n", tempoT, tempoSS);
 
     return 0;
 }
 
-
-void selectionsort(review v[], int tam){
-    int i, j, indice;
-    double min;
-    review tmp;
-
-    for(i = 0; i<tam-1; ++i){
-
-        min = v[i].media; indice = i;
-
-        for(j=i+1; j<tam; ++j){
-            if(v[j].media < min){
-                min = v[j].media;
-                indice = j;
-            }
+void imprimeDadosAvaliacoes(const avaliacaoMensal *reviews, int tam) {
+    for (int i = 0; i < tam; i++) {
+        if (strcmp(reviews[i].ano, "") != 0) { // nao imprimir se o ano estiver vazio pq toda a struct estara vazia
+            printf("%s_%s, avaliacoes: %d, soma: %d, media: %lf\n", reviews[i].ano, reviews[i].mes,
+                   reviews[i].total,
+                   reviews[i].avaliacaoSoma,
+                   reviews[i].media);
         }
-        tmp = v[i];
-        v[i] = v[indice];
-        v[indice] = tmp;
     }
 }
 
-int hash(char ch){
-    if(isalpha(ch))
-        return ch - 'A';
-    else
-        return ch - '0' + 26;
+void escreverArquivoSaida(const avaliacaoMensal *reviews, int tam) {
+    FILE *arquivoCSV = fopen("saida.csv", "w");
+    fprintf(arquivoCSV, "Mes,Avaliacao_Media\n");
+    for (int i = 0; i < tam; i++) { // nao escreve linha se o ano estiver vazio pq toda a struct estara vazia
+        if (strcmp(reviews[i].ano, "") != 0) {
+            fprintf(arquivoCSV, "%s_%s,%lf\n", reviews[i].ano, reviews[i].mes, reviews[i].media);
+        }
+    }
+    fclose(arquivoCSV);
 }
 
-char hash_inverso(int n){
-    if(0 <= n && n <= 25)
-        return n + 'A';
-    else
-        return n - 26 + '0';
+void selectionSortDesc(avaliacaoMensal avaliacoes[], int tam) {
+    int i, j, indice;
+    double max;
+    avaliacaoMensal tmp;
+
+    for (i = 0; i < tam; ++i) {
+        max = avaliacoes[i].media;
+        indice = i;
+
+        for (j = i + 1; j < tam; ++j) {
+            if (avaliacoes[j].media > max) {
+                max = avaliacoes[j].media;
+                indice = j;
+            }
+        }
+        tmp = avaliacoes[i];
+        avaliacoes[i] = avaliacoes[indice];
+        avaliacoes[indice] = tmp;
+    }
 }
