@@ -31,11 +31,11 @@ int main(void){
     review *reviews;
     char ch1, ch2;
 
-    int matriz_avaliacoes[36][36];
-    int matriz_total[36][36];
+    int matriz_avaliacoes[12][12];
+    int matriz_total[12][12];
 
-    for(i=0; i<36; i++)
-        for(j=0; j<36; j++){
+    for(i=0; i<12; i++)
+        for(j=0; j<12; j++){
             matriz_avaliacoes[i][j] = -1;
             matriz_total[i][j] = 0;
         }
@@ -45,30 +45,21 @@ int main(void){
     while(fscanf(f, "%s", s) != EOF){
         // encontra a posicao da primeira virgula da linha
         for(i=0; s[i] != ','; ++i);
+        
+        //converte char para int
 
-        lin = hash(s[i-7]);
-        col = hash(s[i-6]);
-        ano[0] = hash(s[i-4] - 26);
-        ano[1] = hash(s[i-3] - 26);
-        ano[2] = hash(s[i-2] - 26);
-        ano[3] = hash(s[i-1] - 26);
+        lin = s[i-7] - '0'; 
+        col = s[i-6] - '0';
+        ano[0] = s[i-4] - '0';
+        ano[1] = s[i-3] - '0';
+        ano[2] = s[i-2] - '0';
+        ano[3] = s[i-1] - '0';
 
 
 
         if(matriz_avaliacoes[lin][col] == -1){
 
-            if( s[i-6] == '1' || 
-                s[i-6] == '2' || 
-                s[i-6] == '3' || 
-                s[i-6] == '4' ||
-                s[i-6] == '5' || 
-                s[i-6] == '6' || 
-                s[i-6] == '7' || 
-                s[i-6] == '8' ||
-                s[i-6] == '9' || 
-                (s[i-7] == '1' && s[i-6] == '0') || 
-                (s[i-7] == '1' && s[i-6] == '1') || 
-                (s[i-7] == '1' && s[i-6] == '2')){
+            if(isdigit(s[i-6])){
                 matriz_avaliacoes[lin][col] = s[strlen(s)-1];
             }
         }
@@ -84,8 +75,8 @@ int main(void){
     conta_aval = 0;
 
     // contbiliza avaliações a cada mes
-    for(i=0; i<36; i++)
-        for(j=0; j<36; j++)
+    for(i=0; i<12; i++)
+        for(j=0; j<12; j++)
             if(matriz_avaliacoes[i][j] != -1)
                 conta_aval++;
 
@@ -95,15 +86,17 @@ int main(void){
 
     clock_t inicioM = clock();
 
-    for(i=0; i<36; i++)
-        for(j=0; j<36; j++){
+    for(i=0; i<12; i++)
+        for(j=0; j<12; j++){
             if(matriz_avaliacoes[i][j] != -1){
                 reviews[k].avaliacao = matriz_avaliacoes[i][j] - 48;
                 reviews[k].total = matriz_total[i][j];
                 reviews[k].media = (double)reviews[k].avaliacao/reviews[k].total;
+                
+                // converte int para char;
 
-                ch1 = hash_inverso(i);
-                ch2 = hash_inverso(j);
+                ch1 = i + '0'; 
+                ch2 = j + '0';
 
                 reviews[k].data[0] = ch1;
                 reviews[k].data[1] = ch2;
@@ -180,18 +173,4 @@ void selectionsort(review v[], int tam){
         v[i] = v[indice];
         v[indice] = tmp;
     }
-}
-
-int hash(char ch){
-    if(isalpha(ch))
-        return ch - 'A';
-    else
-        return ch - '0' + 26;
-}
-
-char hash_inverso(int n){
-    if(0 <= n && n <= 25)
-        return n + 'A';
-    else
-        return n - 26 + '0';
 }
