@@ -27,7 +27,7 @@ int main(void){
     char s[100];
     int i, j, k, l;
     char m[10];
-    int lin, col, conta_aval;
+    int lin, col, conta_aval, ano[4];
     review *reviews;
     char ch1, ch2;
 
@@ -48,6 +48,11 @@ int main(void){
 
         lin = hash(s[i-7]);
         col = hash(s[i-6]);
+        ano[0] = hash(s[i-4] - 26);
+        ano[1] = hash(s[i-3] - 26);
+        ano[2] = hash(s[i-2] - 26);
+        ano[3] = hash(s[i-1] - 26);
+
 
 
         if(matriz_avaliacoes[lin][col] == -1){
@@ -111,7 +116,11 @@ int main(void){
     clock_t fimM = clock();
 
         for(i=0; i< conta_aval; i++){
-            printf("%s, avaliacoes: %d, total: %d, media: %lf\n", reviews[i].data,
+            printf("%s_%d%d%d%d, avaliacoes: %d, total: %d, media: %lf\n", reviews[i].data,
+                                                                ano[0],
+                                                                ano[1],
+                                                                ano[2],
+                                                                ano[3],
                                                                 reviews[i].avaliacao,
                                                                 reviews[i].total,
                                                                 reviews[i].media);
@@ -125,7 +134,11 @@ int main(void){
 
         putchar('\n');
         for(i=0; i< conta_aval; i++){
-            printf("%s_2022, avaliacoes: %d, total: %d, media: %lf\n", reviews[i].data,
+            printf("%s_%d%d%d%d, avaliacoes: %d, total: %d, media: %lf\n", reviews[i].data,
+                                                                ano[0],
+                                                                ano[1],
+                                                                ano[2],
+                                                                ano[3],
                                                                 reviews[i].avaliacao,
                                                                 reviews[i].total,
                                                                 reviews[i].media);
