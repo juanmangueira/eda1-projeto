@@ -156,16 +156,16 @@ int main(void){
 
 void selectionsort(review v[], int tam){
     int i, j, indice;
-    double min;
+    double max;
     review tmp;
 
     for(i = 0; i<tam-1; ++i){
 
-        min = v[i].media; indice = i;
+        max = v[i].media; indice = i;
 
         for(j=i+1; j<tam; ++j){
-            if(v[j].media < min){
-                min = v[j].media;
+            if(v[j].media > max){
+                max = v[j].media;
                 indice = j;
             }
         }
