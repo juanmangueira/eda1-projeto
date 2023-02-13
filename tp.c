@@ -58,6 +58,9 @@ int main(void) {
         reviews[index].total++;
         reviews[index].media = (double) reviews[index].avaliacaoSoma / reviews[index].total;
     }
+    for (int index = 0; index < QTD_MESES_ANO; index++){
+        reviews[index].media = (double) reviews[index].avaliacaoSoma / reviews[index].total;
+    }
     fclose(arquivoCSV);
 
     printf("Lista ordenada por mês(crescente): \n");
