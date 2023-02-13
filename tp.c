@@ -112,7 +112,7 @@ void selectionSortDesc(avaliacaoMensal avaliacoes[], int tam) {
     double max;
     avaliacaoMensal tmp;
 
-    for (i = 0; i < tam; ++i) {
+    for (i = 0; i < tam-1; ++i) {
         max = avaliacoes[i].media;
         indice = i;
 
